@@ -5,6 +5,9 @@
 #include "DHT.h"
 #include <Wire.h> //Inclusão da biblioteca wire
 #include <Adafruit_SSD1306.h> //Inclusão da biblioteca Adafruit_SSD1306.h
+#include <Adafruit_GFX.h>
+#include <SPI.h>
+//#include <Adafruit_ST7789.h>
 #define DHTPIN A1 // pino que estamos conectado
 #define DHTTYPE DHT11 // DHT 11
 
@@ -25,21 +28,28 @@ void setup() {
 void loop() {
   // Reading temperature or humidity takes about 250 milliseconds!µm
   digitalWrite(LED_BUILTIN, HIGH);
-  float umidade = dht.readHumidity();
-  float graus_celsius = dht.readTemperature();
-  //float graus_farenheit = dht.computeHeatIndex(graus_celsius);
-  
+  //digitalWrite(LED_BUILTIN, LOW);
+  //delay(800);  
+  float umidade = dht.readHumidity(true);
+  float graus_celsius = dht.readTemperature(false);
+  Serial.print("Umidade: " + String(umidade, 1) + " C");
+  Serial.print("Temp: " + String(graus_celsius, 1) + " C");
 
-  displayLED.setTextColor(WHITE); //Define a cor das letras, mas no nosso exemplo o display é Azul, então independente da cor que for colocada neste campo as letras ficarão azul. Por padrão deixe WHITE.
-  displayLED.setTextSize(1); //Define o tamanho da letra
-  displayLED.setCursor(0, 0); //Define o local(Horizontal e vertical), de onde irá aparecer a mensagem no display.
+  displayLED.setTextColor(WHITE); 
+  displayLED.setTextSize(1); 
+  displayLED.setCursor(0, 0); 
   displayLED.print("# Morango Farm #");
   displayLED.println("");
   displayLED.println("Temp: " + String(graus_celsius, 1) + " C");
   displayLED.println("Umidade: " + String(umidade, 1)  + " %");
-  displayLED.println("Status: OFFLINE ");
+    if (isnan(umidade) || isnan(graus_celsius)) {
+      displayLED.setTextColor(INVERSE);
+      displayLED.println("Status: ERROR ");
+    }else{
+      displayLED.setTextColor(INVERSE);
+      displayLED.println("Status: OFFLINE");
+    }
   displayLED.display();
-  digitalWrite(LED_BUILTIN, LOW);
-  delay(800);  
-  displayLED.clearDisplay();
+  // displayLED.clearDisplay();
+  delay(800);
 }
